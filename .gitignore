@@ -6,3 +6,13 @@
 /.kdev4
 __pycache__
 tests-out
+
+# getting rid of noise in `git diff`
+pycdas
+pycdc
+Makefile
+*.a
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
+.vscode/
