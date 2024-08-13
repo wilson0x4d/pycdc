@@ -2474,7 +2474,8 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         default:
-            fprintf(stderr, "Unsupported opcode: %s\n", Pyc::OpcodeName(opcode & 0xFF));
+            int bytecode = code->code()->value()[curpos] & 0xFF;
+            fprintf(stderr, "Unsupported opcode: %s (bytecode 0x%02x (%d) at position %d)\n", Pyc::OpcodeName(opcode), bytecode, bytecode, curpos);
             cleanBuild = false;
             return new ASTNodeList(defblock->nodes());
         }
