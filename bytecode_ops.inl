@@ -269,6 +269,9 @@ OPCODE_A(LOAD_FAST_LOAD_FAST)           // Python 3.13 ->               A=locals
 OPCODE_A(SET_FUNCTION_ATTRIBUTE)        // Python 3.13 ->               A=attribute_type
 OPCODE_A(STORE_FAST_LOAD_FAST)          // Python 3.13 ->               A=locals[A<<4]+locals[A&0xf]
 OPCODE_A(STORE_FAST_STORE_FAST)         // Python 3.13 ->               A=locals[A<<4]+locals[A&0xf]
+OPCODE_A(UNPACK_SEQUENCE_LIST)          // Python 3.11 ->               A=count
+OPCODE_A(UNPACK_SEQUENCE_TUPLE)         // Python 3.11 ->               A=count
+OPCODE_A(UNPACK_SEQUENCE_TWO_TUPLE)     // Python 3.11 ->               A=count
 
 /* Instrumented opcodes */
 OPCODE_A(INSTRUMENTED_LOAD_SUPER_ATTR)      // Python 3.12 ->           (see LOAD_SUPER_ATTR)
