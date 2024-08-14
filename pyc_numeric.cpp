@@ -100,13 +100,9 @@ std::string PycLong::repr(PycModule* mod) const
 /* PycFloat */
 void PycFloat::load(PycData* stream, PycModule*)
 {
-    int len = stream->getByte();
-    if (len < 0)
-        throw std::bad_alloc();
-
+    unsigned char len = stream->getByte();
     m_value.resize(len);
-    if (len > 0)
-        stream->getBuffer(len, &m_value.front());
+    stream->getBuffer(len, &m_value.front());
 }
 
 bool PycFloat::isEqual(PycRef<PycObject> obj) const
@@ -124,13 +120,9 @@ void PycComplex::load(PycData* stream, PycModule* mod)
 {
     PycFloat::load(stream, mod);
 
-    int len = stream->getByte();
-    if (len < 0)
-        throw std::bad_alloc();
-
+    unsigned char len = stream->getByte();
     m_imag.resize(len);
-    if (len > 0)
-        stream->getBuffer(len, &m_imag.front());
+    stream->getBuffer(len, &m_imag.front());
 }
 
 bool PycComplex::isEqual(PycRef<PycObject> obj) const

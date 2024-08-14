@@ -8,7 +8,7 @@
 
 class PycString : public PycObject {
 public:
-    PycString(int type = TYPE_STRING)
+    PycString(unsigned char type = TYPE_STRING)
         : PycObject(type) { }
 
     bool isEqual(PycRef<PycObject> obj) const override;

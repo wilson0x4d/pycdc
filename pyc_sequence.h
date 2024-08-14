@@ -7,7 +7,7 @@
 
 class PycSequence : public PycObject {
 public:
-    PycSequence(int type) : PycObject(type), m_size(0) { }
+    PycSequence(unsigned char type) : PycObject(type), m_size(0) { }
 
     int size() const { return m_size; }
     virtual PycRef<PycObject> get(int idx) const = 0;
@@ -20,7 +20,7 @@ class PycSimpleSequence : public PycSequence {
 public:
     typedef std::vector<PycRef<PycObject>> value_t;
 
-    PycSimpleSequence(int type) : PycSequence(type) { }
+    PycSimpleSequence(unsigned char type) : PycSequence(type) { }
 
     bool isEqual(PycRef<PycObject> obj) const override;
 
@@ -36,7 +36,7 @@ protected:
 class PycTuple : public PycSimpleSequence {
 public:
     typedef PycSimpleSequence::value_t value_t;
-    PycTuple(int type = TYPE_TUPLE) : PycSimpleSequence(type) { }
+    PycTuple(unsigned char type = TYPE_TUPLE) : PycSimpleSequence(type) { }
 
     void load(class PycData* stream, class PycModule* mod) override;
 };
@@ -44,13 +44,13 @@ public:
 class PycList : public PycSimpleSequence {
 public:
     typedef PycSimpleSequence::value_t value_t;
-    PycList(int type = TYPE_LIST) : PycSimpleSequence(type) { }
+    PycList(unsigned char type = TYPE_LIST) : PycSimpleSequence(type) { }
 };
 
 class PycSet : public PycSimpleSequence {
 public:
     typedef PycSimpleSequence::value_t value_t;
-    PycSet(int type = TYPE_SET) : PycSimpleSequence(type) { }
+    PycSet(unsigned char type = TYPE_SET) : PycSimpleSequence(type) { }
 };
 
 class PycDict : public PycObject {
@@ -58,7 +58,7 @@ public:
     typedef std::tuple<PycRef<PycObject>, PycRef<PycObject>> item_t;
     typedef std::vector<item_t> value_t;
 
-    PycDict(int type = TYPE_DICT) : PycObject(type) { }
+    PycDict(unsigned char type = TYPE_DICT) : PycObject(type) { }
 
     bool isEqual(PycRef<PycObject> obj) const override;
 

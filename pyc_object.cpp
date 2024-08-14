@@ -11,7 +11,7 @@ PycRef<PycObject> Pyc_StopIteration = new PycObject(PycObject::TYPE_STOPITER);
 PycRef<PycObject> Pyc_False = new PycObject(PycObject::TYPE_FALSE);
 PycRef<PycObject> Pyc_True = new PycObject(PycObject::TYPE_TRUE);
 
-PycRef<PycObject> CreateObject(int type)
+PycRef<PycObject> CreateObject(unsigned char type)
 {
     switch (type) {
     case PycObject::TYPE_NULL:
@@ -70,7 +70,7 @@ PycRef<PycObject> CreateObject(int type)
 
 PycRef<PycObject> LoadObject(PycData* stream, PycModule* mod)
 {
-    int type = stream->getByte();
+    unsigned char type = stream->getByte();
     PycRef<PycObject> obj;
 
     if (type == PycObject::TYPE_OBREF) {

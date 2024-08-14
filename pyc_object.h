@@ -67,7 +67,7 @@ public:
     _Obj* operator->() const { return m_obj; }
     operator _Obj*() const { return m_obj; }
 
-    inline int type() const;
+    inline unsigned char type() const;
 
     template <class _Cast>
     PycRef<_Cast> try_cast() const { return dynamic_cast<_Cast*>(m_obj); }
@@ -94,7 +94,7 @@ class PycModule;
 /* Please only hold PycObjects inside PycRefs! */
 class PycObject {
 public:
-    enum Type {
+    enum Type : unsigned char {
         // From the Python Marshallers
         TYPE_NULL = '0',                    // Python 1.0 ->
         TYPE_NONE = 'N',                    // Python 1.0 ->
@@ -129,10 +129,10 @@ public:
         TYPE_SHORT_ASCII_INTERNED = 'Z',    // Python 3.4 ->
     };
 
-    PycObject(int type = TYPE_UNKNOWN) : m_refs(0), m_type(type) { }
+    PycObject(unsigned char type = TYPE_UNKNOWN) : m_refs(0), m_type(type) { }
     virtual ~PycObject() { }
 
-    int type() const { return m_type; }
+    unsigned char type() const { return m_type; }
 
     virtual bool isEqual(PycRef<PycObject> obj) const
     {
@@ -145,7 +145,7 @@ private:
     int m_refs;
 
 protected:
-    int m_type;
+    unsigned char m_type;
 
 public:
     void addRef() { ++m_refs; }
@@ -153,12 +153,12 @@ public:
 };
 
 template <class _Obj>
-int PycRef<_Obj>::type() const
+unsigned char PycRef<_Obj>::type() const
 {
-    return m_obj ? m_obj->type() : PycObject::TYPE_NULL;
+    return m_obj ? m_obj->type() : (unsigned char)PycObject::TYPE_NULL;
 }
 
-PycRef<PycObject> CreateObject(int type);
+PycRef<PycObject> CreateObject(unsigned char type);
 PycRef<PycObject> LoadObject(PycData* stream, PycModule* mod);
 
 /* Static Singleton objects */
