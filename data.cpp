@@ -54,7 +54,7 @@ int PycFile::getByte()
 {
     int ch = fgetc(m_stream);
     if (ch == EOF)
-        ungetc(ch, m_stream);
+        throw std::runtime_error("Invalid attempt to read past EOF in PycFile");
     return ch;
 }
 
@@ -68,7 +68,7 @@ int PycFile::getBuffer(int bytes, void* buffer)
 int PycBuffer::getByte()
 {
     if (atEof())
-        return EOF;
+        throw std::runtime_error("Invalid attempt to read past EOF in PycBuffer");
     int ch = (int)(*(m_buffer + m_pos));
     ++m_pos;
     return ch & 0xFF;   // Make sure it's just a byte!

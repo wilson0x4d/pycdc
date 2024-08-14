@@ -1788,7 +1788,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     curblock = blocks.top();
                     curblock->append(prev.cast<ASTNode>());
 
-                    bc_next(source, mod, opcode, operand, pos);
+                    if (!source.atEof()) {
+                        bc_next(source, mod, bytecode, opcode, operand, pos);
+                    }
                 }
             }
             break;
@@ -1811,7 +1813,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                     curblock = blocks.top();
                     curblock->append(prev.cast<ASTNode>());
 
-                    bc_next(source, mod, opcode, operand, pos);
+                    if (!source.atEof()) {
+                        bc_next(source, mod, bytecode, opcode, operand, pos);
+                    }
                 }
             }
             break;

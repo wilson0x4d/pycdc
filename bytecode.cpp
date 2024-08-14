@@ -278,7 +278,9 @@ void print_const(std::ostream& pyc_output, PycRef<PycObject> obj, PycModule* mod
 
 void bc_next(PycBuffer& source, PycModule* mod, int& opcode, int& operand, int& pos)
 {
-    opcode = Pyc::ByteToOpcode(mod->majorVer(), mod->minorVer(), source.getByte());
+    if (source.atEof()) {
+        throw std::runtime_error("Attempt to read past EOF in bc_next");
+    }
     if (mod->verCompare(3, 6) >= 0) {
         operand = source.getByte();
         pos += 2;
