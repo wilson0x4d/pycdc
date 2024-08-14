@@ -308,7 +308,7 @@ if len(sys.argv) < 2:
     print('Version is X.Y (e.g. 3.4), not including the patch version')
     sys.exit(1)
 
-RE_PYVER = re.compile(r'\d\.\d')
+RE_PYVER = re.compile(r'\d\.\d+')
 
 pythons = []
 infile = None
