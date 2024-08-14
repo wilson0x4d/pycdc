@@ -190,16 +190,24 @@ def build_python_container(snekdir, version):
 
 
 def local_compile(snekdir, ver, infile):
-    pyexe = acquire_python(snekdir, ver)
-    proc = subprocess.Popen([pyexe, '-c', 'import sys; print(sys.version)'],
-                            stdout=subprocess.PIPE)
+    if '0.0' == ver:
+        # use python resolved on system PATH (ie '--local' behavior)
+        pyexe = 'python'
+    else:
+        pyexe = acquire_python(snekdir, ver)
+    proc = subprocess.Popen(
+        [pyexe, '-c', 'import sys; print(sys.version)'],
+        stdout=subprocess.PIPE)
     out, _ = proc.communicate()
     if proc.returncode != 0:
         print('Could not determine Python version for {}'.format(ver))
         return None
 
     bcver = str(out, 'iso-8859-1').split(' ', 1)[0]
-    if not bcver.startswith(ver):
+    if '0.0' == ver:
+        # use the major.minor of the python exe when '--local'
+        ver = RE_PYVER.match(bcver)[0]
+    elif not bcver.startswith(ver):
         print('Python {} reported itself as version {}!'.format(ver, bcver))
         return None
 
@@ -296,12 +304,16 @@ def container_compile(snekdir, ver, infile):
     return outfile
 
 
-if len(sys.argv) < 2:
-    print('Usage: {} [-c] [versions] input.py'.format(sys.argv[0]))
+if len(sys.argv) < 2 or '-h' in sys.argv or '--help' in sys.argv:
+    print('Usage: {} [-c] [versions] [-l] input.py'.format(sys.argv[0]))
     print('Compile input.py for one or more python versions')
     print()
-    print('-c\tuse prebuilt containers for running different versions of Python')
+    print('--containers | -c')
+    print('\tuse prebuilt containers for running different versions of Python')
     print('\t(not available for all versions)')
+    print('--local | -l')
+    print('\tdo not use a container, and run tests using the `python`')
+    print('\tresolved on system PATH. `[versions]` will be ignored.')
     print()
     print('Output is written to input.<version>.pyc for each version successfully compiled')
     print()
@@ -320,12 +332,19 @@ for arg in sys.argv[1:]:
         else:
             print('Unknown Python version: {}'.format(arg))
             sys.exit(1)
-    elif arg == '-c':
-        use_containers = True
+    elif arg == '--containers' or arg == '-c':
+        if '--local' not in pythons:
+            use_containers = True
+    elif arg == '--local' or arg == '-l':
+        use_containers = False
+        pythons.append('--local')
     elif arg.startswith('-'):
         print("WARNING: Unrecognized argument '{}'".format(arg))
     else:
         infile = arg
+if '--local' in pythons:
+    # enforcement, when running `--local`` ignore `[versions]`
+    pythons = ['0.0']
 
 if infile is None:
     print('No input file specified')
