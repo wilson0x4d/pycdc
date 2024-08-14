@@ -287,7 +287,8 @@ void bc_next(PycBuffer& source, PycModule* mod, unsigned char& bytecode, int& op
         operand = source.getByte();
         pos += 2;
         if (opcode == Pyc::EXTENDED_ARG_A) {
-            opcode = Pyc::ByteToOpcode(mod->majorVer(), mod->minorVer(), source.getByte());
+            bytecode = source.getByte();
+            opcode = Pyc::ByteToOpcode(mod->majorVer(), mod->minorVer(), bytecode);
             operand = (operand << 8) | source.getByte();
             pos += 2;
         }
@@ -296,7 +297,8 @@ void bc_next(PycBuffer& source, PycModule* mod, unsigned char& bytecode, int& op
         pos += 1;
         if (opcode == Pyc::EXTENDED_ARG_A) {
             operand = source.get16() << 16;
-            opcode = Pyc::ByteToOpcode(mod->majorVer(), mod->minorVer(), source.getByte());
+            bytecode = source.getByte();
+            opcode = Pyc::ByteToOpcode(mod->majorVer(), mod->minorVer(), bytecode);
             pos += 3;
         }
         if (opcode >= Pyc::PYC_HAVE_ARG) {
