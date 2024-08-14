@@ -18,7 +18,7 @@ public:
     virtual bool isOpen() const = 0;
     virtual bool atEof() const = 0;
 
-    virtual int getByte() = 0;
+    virtual unsigned char getByte() = 0;
     virtual int getBuffer(int bytes, void* buffer) = 0;
     int get16();
     int get32();
@@ -33,7 +33,7 @@ public:
     bool isOpen() const override { return (m_stream != 0); }
     bool atEof() const override;
 
-    int getByte() override;
+    unsigned char getByte() override;
     int getBuffer(int bytes, void* buffer) override;
 
 private:
@@ -49,7 +49,7 @@ public:
     bool isOpen() const override { return (m_buffer != 0); }
     bool atEof() const override { return (m_pos == m_size); }
 
-    int getByte() override;
+    unsigned char getByte() override;
     int getBuffer(int bytes, void* buffer) override;
 
 private:

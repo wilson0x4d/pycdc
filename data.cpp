@@ -7,32 +7,32 @@
 int PycData::get16()
 {
     /* Ensure endianness */
-    int result = getByte() & 0xFF;
-    result |= (getByte() & 0xFF) << 8;
+    int result = getByte();
+    result |= (getByte()) << 8;
     return result;
 }
 
 int PycData::get32()
 {
     /* Ensure endianness */
-    int result = getByte() & 0xFF;
-    result |= (getByte() & 0xFF) <<  8;
-    result |= (getByte() & 0xFF) << 16;
-    result |= (getByte() & 0xFF) << 24;
+    int result = getByte();
+    result |= (getByte()) <<  8;
+    result |= (getByte()) << 16;
+    result |= (getByte()) << 24;
     return result;
 }
 
 Pyc_INT64 PycData::get64()
 {
     /* Ensure endianness */
-    Pyc_INT64 result = (Pyc_INT64)(getByte() & 0xFF);
-    result |= (Pyc_INT64)(getByte() & 0xFF) <<  8;
-    result |= (Pyc_INT64)(getByte() & 0xFF) << 16;
-    result |= (Pyc_INT64)(getByte() & 0xFF) << 24;
-    result |= (Pyc_INT64)(getByte() & 0xFF) << 32;
-    result |= (Pyc_INT64)(getByte() & 0xFF) << 40;
-    result |= (Pyc_INT64)(getByte() & 0xFF) << 48;
-    result |= (Pyc_INT64)(getByte() & 0xFF) << 56;
+    Pyc_INT64 result = (Pyc_INT64)(getByte());
+    result |= (Pyc_INT64)(getByte()) <<  8;
+    result |= (Pyc_INT64)(getByte()) << 16;
+    result |= (Pyc_INT64)(getByte()) << 24;
+    result |= (Pyc_INT64)(getByte()) << 32;
+    result |= (Pyc_INT64)(getByte()) << 40;
+    result |= (Pyc_INT64)(getByte()) << 48;
+    result |= (Pyc_INT64)(getByte()) << 56;
     return result;
 }
 
@@ -50,12 +50,12 @@ bool PycFile::atEof() const
     return (ch == EOF);
 }
 
-int PycFile::getByte()
+unsigned char PycFile::getByte()
 {
     int ch = fgetc(m_stream);
     if (ch == EOF)
         throw std::runtime_error("Invalid attempt to read past EOF in PycFile");
-    return ch;
+    return ch & 0xFF;   // Make sure it's just a byte!
 }
 
 int PycFile::getBuffer(int bytes, void* buffer)
@@ -65,7 +65,7 @@ int PycFile::getBuffer(int bytes, void* buffer)
 
 
 /* PycBuffer */
-int PycBuffer::getByte()
+unsigned char PycBuffer::getByte()
 {
     if (atEof())
         throw std::runtime_error("Invalid attempt to read past EOF in PycBuffer");
