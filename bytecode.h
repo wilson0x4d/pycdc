@@ -23,7 +23,7 @@ enum DisassemblyFlags {
 };
 
 const char* OpcodeName(int opcode);
-int ByteToOpcode(int maj, int min, int opcode);
+int ByteToOpcode(int maj, int min, unsigned char byte);
 
 }
 
