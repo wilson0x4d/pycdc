@@ -2433,6 +2433,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::YIELD_VALUE:
+        case Pyc::YIELD_VALUE_A:
         case Pyc::INSTRUMENTED_YIELD_VALUE_A:
             {
                 PycRef<ASTNode> value = stack.top();
