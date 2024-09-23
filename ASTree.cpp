@@ -128,6 +128,8 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 && opcode != Pyc::JUMP_IF_TRUE_A
                 && opcode != Pyc::JUMP_IF_TRUE_OR_POP_A
                 && opcode != Pyc::POP_JUMP_IF_TRUE_A
+                && opcode != Pyc::POP_JUMP_IF_NONE_A
+                && opcode != Pyc::POP_JUMP_IF_NOT_NONE_A
                 && opcode != Pyc::POP_JUMP_FORWARD_IF_TRUE_A
                 && opcode != Pyc::POP_BLOCK) {
             else_pop = false;
@@ -187,6 +189,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::BINARY_TRUE_DIVIDE:
         case Pyc::BINARY_XOR:
         case Pyc::BINARY_MATRIX_MULTIPLY:
+        case Pyc::BINARY_OP_INPLACE_ADD_UNICODE:
         case Pyc::INPLACE_ADD:
         case Pyc::INPLACE_AND:
         case Pyc::INPLACE_DIVIDE:
@@ -299,6 +302,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::STORE_MAP:
+        case Pyc::MAP_ADD_A:
             {
                 PycRef<ASTNode> key = stack.top();
                 stack.pop();
@@ -425,7 +429,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             break;
         case Pyc::CALL_A:
         case Pyc::CALL_FUNCTION_A:
+        case Pyc::CALL_FUNCTION_EX_A:
         case Pyc::INSTRUMENTED_CALL_A:
+        case Pyc::INSTRUMENTED_CALL_FUNCTION_EX_A:
             {
                 int kwparams = (operand & 0xFF00) >> 8;
                 int pparams = (operand & 0xFF);
@@ -992,6 +998,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::GET_AWAITABLE:
+        case Pyc::GET_AWAITABLE_A:
             {
                 PycRef<ASTNode> object = stack.top();
                 stack.pop();
@@ -1039,8 +1046,11 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::JUMP_IF_TRUE_OR_POP_A:
         case Pyc::POP_JUMP_IF_FALSE_A:
         case Pyc::POP_JUMP_IF_TRUE_A:
+        case Pyc::POP_JUMP_IF_NONE_A:
+        case Pyc::POP_JUMP_IF_NOT_NONE_A:
         case Pyc::POP_JUMP_FORWARD_IF_FALSE_A:
         case Pyc::POP_JUMP_FORWARD_IF_TRUE_A:
+        case Pyc::PUSH_EXC_INFO:
         case Pyc::INSTRUMENTED_POP_JUMP_IF_FALSE_A:
         case Pyc::INSTRUMENTED_POP_JUMP_IF_TRUE_A:
             {
@@ -1049,6 +1059,8 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 int popped = ASTCondBlock::UNINITED;
 
                 if (opcode == Pyc::POP_JUMP_IF_FALSE_A
+                        || opcode == Pyc::POP_JUMP_IF_NONE_A
+                        || opcode == Pyc::POP_JUMP_IF_NOT_NONE_A
                         || opcode == Pyc::POP_JUMP_IF_TRUE_A
                         || opcode == Pyc::POP_JUMP_FORWARD_IF_FALSE_A
                         || opcode == Pyc::POP_JUMP_FORWARD_IF_TRUE_A
@@ -1516,10 +1528,16 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 stack.push(new ASTName(code->getLocal(operand)));
             break;
         case Pyc::LOAD_FAST_LOAD_FAST_A:
+        case Pyc::LOAD_FAST__LOAD_CONST_A:
+        case Pyc::LOAD_CONST__LOAD_FAST_A:
             stack.push(new ASTName(code->getLocal(operand >> 4)));
             stack.push(new ASTName(code->getLocal(operand & 0xF)));
             break;
         case Pyc::LOAD_GLOBAL_A:
+        case Pyc::LOAD_GLOBAL_BUILTIN_A:
+        case Pyc::LOAD_GLOBAL_MODULE_A:
+        case Pyc::LOAD_FROM_DICT_OR_DEREF_A:
+        case Pyc::LOAD_FROM_DICT_OR_GLOBALS_A:
             if (mod->verCompare(3, 11) >= 0) {
                 // Loads the global named co_names[namei>>1] onto the stack.
                 if (operand & 1) {
@@ -1538,6 +1556,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::STORE_LOCALS:
             stack.pop();
             break;
+        case Pyc::LOAD_ATTR_METHOD_WITH_VALUES_A:
         case Pyc::LOAD_METHOD_A:
             {
                 // Behave like LOAD_ATTR
@@ -1993,6 +2012,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::STORE_ATTR_A:
+        case Pyc::STORE_ATTR_SLOT_A:
             {
                 if (unpack) {
                     PycRef<ASTNode> name = stack.top();
@@ -2433,7 +2453,6 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             }
             break;
         case Pyc::YIELD_VALUE:
-        case Pyc::YIELD_VALUE_A:
         case Pyc::INSTRUMENTED_YIELD_VALUE_A:
             {
                 PycRef<ASTNode> value = stack.top();
@@ -2444,6 +2463,9 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::SETUP_ANNOTATIONS:
             variable_annotations = true;
             break;
+        case Pyc::BEFORE_ASYNC_WITH:
+        case Pyc::BEFORE_WITH:
+        case Pyc::CHECK_EXC_MATCH:
         case Pyc::PRECALL_A:
         case Pyc::RESUME_A:
         case Pyc::INSTRUMENTED_RESUME_A:
@@ -2477,6 +2499,41 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 next_tup->setRequireParens(false);
                 stack.push(tup);
                 stack.push(next_tup);
+            }
+            break;
+        case Pyc::MATCH_SEQUENCE:
+            {
+                auto v = stack.top();
+                auto vtype = v.type();
+                // lacks tp set flag, so dummy behavior here
+                if (vtype == ASTNode::NODE_TUPLE
+                    || vtype == ASTNode::NODE_LIST
+                    || vtype == ASTNode::NODE_SET
+                    || vtype == ASTNode::NODE_MAP)
+                {
+                    stack.push(new ASTObject(new PycObject(PycObject::TYPE_TRUE)));
+                } else {
+                    stack.push(new ASTObject(new PycObject(PycObject::TYPE_FALSE)));
+                }
+            }
+            break;
+        case Pyc::CALL_INTRINSIC_1_A:
+        case Pyc::CALL_INTRINSIC_2_A:
+        case Pyc::COPY_A:
+        case Pyc::COPY_FREE_VARS_A:
+        case Pyc::DICT_MERGE_A:
+        case Pyc::DICT_UPDATE_A:
+        case Pyc::JUMP_BACKWARD_A:
+        case Pyc::MAKE_CELL_A:
+        case Pyc::UNPACK_SEQUENCE_LIST_A:
+        case Pyc::UNPACK_SEQUENCE_TUPLE_A:
+        case Pyc::UNPACK_SEQUENCE_TWO_TUPLE_A:
+        case Pyc::RETURN_GENERATOR:
+        case Pyc::RERAISE:
+        case Pyc::RERAISE_A:
+            {
+                // STUBS -- need implementations
+                fprintf(stderr, "WIP opcode: %s (bytecode=%02Xh) at position %d.\n", Pyc::OpcodeName(opcode), bytecode, curpos);
             }
             break;
         default:
